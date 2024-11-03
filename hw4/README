@@ -1,0 +1,8 @@
+If you want to compile the code, you need to have the following libraries installed:
+
+- GLFW
+- GLEW
+- OpenGL
+- SOIL2
+
+See makefile for more information.
