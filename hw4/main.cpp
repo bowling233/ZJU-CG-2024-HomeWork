@@ -16,7 +16,7 @@ using namespace std;
 #define numVAOs 1
 #define numVBOs 3
 
-float cameraX, cameraY, cameraZ;
+glm::vec3 cameraPos, cameraFront, cameraUp;
 GLuint renderingProgram;
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
@@ -30,6 +30,66 @@ glm::mat4 pMat, vMat, mMat, mvMat;
 
 stack<glm::mat4> mvStack;
 Sphere mySphere = Sphere(48);
+
+void processInput(GLFWwindow *window)
+{
+    const float cameraSpeed = 0.05f; // adjust accordingly
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+}
+
+float lastX = 400, lastY = 300;
+float yaw = -90.0f, pitch = 0.0f;
+float fov = 45.0f;
+bool firstMouse;
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+  
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; 
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.1f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw   += xoffset;
+    pitch += yoffset;
+
+    if(pitch > 89.0f)
+        pitch = 89.0f;
+    if(pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    fov -= (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 45.0f)
+        fov = 45.0f; 
+}
 
 void setupVertices(void) {
 	std::vector<int> ind = mySphere.getIndices();
@@ -72,9 +132,12 @@ void init(GLFWwindow* window) {
 
 	glfwGetFramebufferSize(window, &width, &height);
 	aspect = (float)width / (float)height;
-	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
 
-	cameraX = 0.0f; cameraY = 0.0f; cameraZ = 12.0f;
+	cameraPos   = glm::vec3(0.0f, 0.0f,  12.0f);
+	cameraFront = glm::vec3(0.0f, 0.0f,  -1.0f);
+	cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+	firstMouse = true;
+
 	setupVertices();
 	earthTexture = Utils::loadTexture("earth.jpg");
 }
@@ -89,7 +152,8 @@ void display(GLFWwindow* window, double currentTime) {
 	mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
 	projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
 
-	vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
+	pMat = glm::perspective(glm::radians(fov), aspect, 0.1f, 1000.0f);
+	vMat = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 	mvStack.push(vMat);
 
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
@@ -227,7 +291,7 @@ void display(GLFWwindow* window, double currentTime) {
 void window_size_callback(GLFWwindow* win, int newWidth, int newHeight) {
 	aspect = (float)newWidth / (float)newHeight;
 	glViewport(0, 0, newWidth, newHeight);
-	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
+	pMat = glm::perspective(glm::radians(fov), aspect, 0.1f, 1000.0f);
 }
 
 int main(void) {
@@ -240,10 +304,14 @@ int main(void) {
 	glfwSwapInterval(1);
 
 	glfwSetWindowSizeCallback(window, window_size_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback); 
 
 	init(window);
 
 	while (!glfwWindowShouldClose(window)) {
+		processInput(window);
 		display(window, glfwGetTime());
 		glfwSwapBuffers(window);
 		glfwPollEvents();
