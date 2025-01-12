@@ -1,3 +1,17 @@
+The source code is made on Linux system:
+
+- Linux bowling-pc 6.11.5-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.11.5-1 (2024-10-27) x86_64 GNU/Linux
+- libopengl-dev/unstable,testing,now 1.7.0-1+b2 amd64 [installed,automatic]
+- libopengl0/unstable,testing,now 1.7.0-1+b2 amd64 [installed,automatic]
+- libglm-dev/unstable,unstable,testing,testing,now 0.9.9.8+ds-7 all [installed]
+- libglu1-mesa-dev/unstable,testing,now 9.0.2-1.1+b2 amd64 [installed,automatic]
+- libglew-dev/unstable,testing,now 2.2.0-4+b2 amd64 [installed]
+- libglew2.2/unstable,testing,now 2.2.0-4+b2 amd64 [installed]
+- libglfw3-dev/unstable,testing,now 3.4-1+b1 amd64 [installed]
+- libglfw3/unstable,testing,now 3.4-1+b1 amd64 [installed]
+
+The executable file cannot be run on Windows or macOS, and may not work on Linux systems with different configurations.
+
 If you want to compile the code, you need to have the following libraries installed:
 
 - GLFW

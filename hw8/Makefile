@@ -7,7 +7,7 @@ LDPATH	= -lglfw -lGLEW -lGL -L/river/sync/Code/_course/graphics/SOIL2/cmake -lso
 C_SRC	= ImportedModel.cpp Utils.cpp Sphere.cpp
 OBJ	= $(patsubst %.cpp,%.o,$(C_SRC))
 
-all: main
+all: clean main
 	./main
 
 %.o:%.cpp

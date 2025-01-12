@@ -2,8 +2,8 @@ RM = rm -f
 CXX = g++
 CXXFLAGS = -Wall -g
 # edit two lines below to point to your SOIL2 directory
-INCLUDES = -I/home/bowling/local/SOIL2/src
-LDPATH = -lglfw -lGLEW -lGL -L/home/bowling/local/SOIL2/cmake -lsoil2
+INCLUDES = -I/river/sync/Code/_course/graphics/SOIL2/src
+LDPATH = -lglfw -lGLEW -lGL -L/river/sync/Code/_course/graphics/SOIL2/cmake -lsoil2
 
 all: main
 	./main
